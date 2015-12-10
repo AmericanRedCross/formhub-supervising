@@ -9,7 +9,7 @@
 npm install
 ```
 
-**Start mongo and postgres databases**
+**Start mongo databases**
 
 **Start the application**
 

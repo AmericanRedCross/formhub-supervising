@@ -3,19 +3,14 @@
 
 var settings = {}
 
-settings.application = {
+settings.page = {
 	siteName: "Site name",
 	description: "Use this site to do things.",
-	db: "users",
-	port: 8888
 }
 
-settings.pg = {
-	server: 'localhost',
-	port: '5432',
-	database: '',
-	user: '',
-	password: ''
+settings.application = {
+	db: "users",
+	port: 8888
 }
 
 module.exports = settings;
