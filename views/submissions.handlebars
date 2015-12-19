@@ -146,6 +146,7 @@ function countSubmissions(){
 
 function updatePage(){
 	$('#show-location').html(selectedLocation + " <small>(municipality)</small>");
+  $('#show-count').html(countTotal + " total submissions for this location.");
 	var subCountHtml = ""
 	$.each(subCounts, function(subLocation, sub){
 		subCountHtml += subLocation + " - " + sub + " submissions<br>";
