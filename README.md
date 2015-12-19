@@ -1,5 +1,5 @@
+This tool connects to a formhub instance, gets the data for a single survey for a primary location from a predefined list, gives you the submission count, gives you the submission count for a sub location data field, and puts the submissions with a valid geolocation on a map.  
 
-**American Red Cross and Kevin Lustig**
 
 ## Installation
 

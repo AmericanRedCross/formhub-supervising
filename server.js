@@ -257,6 +257,48 @@ app.get('/',function (req,res) {
 	});
 })
 
+app.get('/submissions',function(req,res) {
+	if (req.user) {
+		res.render('submissions', {
+			user:req.user,
+			opts:localConfig.page,
+			submissions:localConfig.submissions,
+			error:req.flash("loginMessage")
+		});
+	} else {
+		res.redirect("/");
+	}
+})
+
+var request = require('request');
+
+app.post('/submissions',function(req,res) {
+	if (req.user) {
+
+		var location = req.body.location;
+		var options = {
+			url: localConfig.formhub.host + "/api/v1/data/" +
+			localConfig.formhub.user + "/" +
+			localConfig.formhub.formid +
+			'?query={"' + localConfig.submissions.locationsField + '":"' + location + '"}',
+			headers: {
+				'Authorization': 'Token ' + localConfig.formhub.token
+			}
+		};
+
+		function cb(error, response, body) {
+			if (body) {
+				res.send(body);
+			}
+		}
+
+		request(options, cb);
+
+	} else {
+		res.redirect("/");
+	}
+})
+
 
 app.listen(localConfig.application.port);
 console.log('Listening on port '+localConfig.application.port);

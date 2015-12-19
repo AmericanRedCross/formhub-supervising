@@ -10,7 +10,21 @@ settings.page = {
 
 settings.application = {
 	db: "users",
-	port: 8888
+	port: 8000
+}
+
+settings.submissions = {
+	locationsField: "",
+	locations: [ ],
+	subLocationField: ""
+}
+
+settings.formhub = {
+	user: "",
+	host: "http://formhub.redcross.org",
+	token: "",
+	formid: "",
+
 }
 
 module.exports = settings;

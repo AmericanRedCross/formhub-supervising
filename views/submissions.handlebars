@@ -1,0 +1,159 @@
+<script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.min.js"></script>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.2/handlebars.min.js"></script>
+<!-- <script src="/js/users.js"></script> -->
+<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+
+
+<div id="loading-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="text-align:center;">
+        <h4 class="modal-title">Please wait...</h4>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <img src="media/ajax_loader_gray_512.gif" style="height:200px; width:200px;">
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<header class="row header">
+	<div class="col-md-12">
+		<h1>Submissions</h1>
+	</div>
+</header>
+<nav class="navbar row">
+	<ul class="nav navbar-nav">
+		<li class="dropdown">
+			<a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><b class="glyphicon glyphicon-chevron-down"></b> Choose location</a>
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+
+				{{#each submissions.locations}}
+				<!-- <li><a href="/submissions/{{this}}">{{this}}</a></li> -->
+				<li><a onClick="getData({{this}});">{{this}}</a></li>
+
+				{{/each}}
+			</ul>
+		</li>
+	</ul>
+</nav>
+
+<h1><span id="show-location"></span></h1>
+
+<p id="show-count"></p>
+
+<p id="show-subcounts"></p>
+
+<div id="myMap" style="height:350px; width:100%;"></div>
+
+<script>
+
+
+var mapUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+var mapAttribution = 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> | CC-BY <a href="http://redcross.org" title="Red Cross" target="_blank">Red Cross</a> 2015 | <a title="Disclaimer" onClick="showDisclaimer();">Disclaimer</a>';
+var mapTiles = L.tileLayer(mapUrl, {attribution: mapAttribution});
+var map = L.map('myMap', {
+    zoom: 3,
+    center: [0,0],
+    scrollWheelZoom: false,
+    layers: [mapTiles]
+});
+
+
+var subLocationField = '{{submissions.subLocationField}}';
+var thisData, selectedLocation;
+var countTotal = 0;
+var subLocations = [];
+var subCounts = {};
+
+function getData(value){
+	$("#loading-modal").modal({backdrop:'static'});
+
+	selectedLocation = value;
+	var url = window.location.href;
+	$.post(url, {location:value}, function(data){
+		thisData = JSON.parse(data);
+		mapData()
+	});
+
+}
+
+function mapData(){
+
+	var featureCollection= { "type": "featureCollection", "features": [] };
+	$.each(thisData, function(index, item) {
+		if(isNaN(parseFloat(item['_geolocation'][1])) === false && isNaN(parseFloat(item['_geolocation'][0])) === false){
+			var latlng = [parseFloat(item['_geolocation'][1]), parseFloat(item['_geolocation'][0])];
+			var thisGeoJsonObject = {
+				"type": "Feature",
+				"properties": {
+				},
+				"geometry": {
+					"type": "Point",
+					"coordinates": latlng
+				}
+			};
+			featureCollection.features.push(thisGeoJsonObject);
+		}
+	});
+	console.log(featureCollection);
+
+
+	var centroidOptions = {
+		radius: 5,
+		fillColor: "#ED1B2E",
+		fillOpacity: 1,
+		weight: 0
+
+	};
+
+	locationsLayer = L.geoJson(featureCollection.features, {
+		pointToLayer: function (feature, latlng) {
+			return L.circleMarker(latlng, centroidOptions);
+		}
+		// },
+		// onEachFeature: onEachFeature
+	}).addTo(map);
+	mapBounds = locationsLayer.getBounds();
+	map.fitBounds(mapBounds);
+
+	map.addLayer(locationsLayer);
+
+	countSubmissions();
+}
+
+function countSubmissions(){
+	subCounts = {}
+	subLocations = []
+	countTotal = thisData.length;
+	$.each(thisData, function(index, thisSubmission){
+		var thisLocation = thisSubmission[subLocationField];
+		if($.inArray(thisLocation, subLocations) === -1){
+			subLocations.push(thisLocation);
+			subCounts[thisLocation] = 1;
+		} else {
+			subCounts[thisLocation] += 1;
+		}
+
+	})
+	updatePage();
+}
+
+function updatePage(){
+	$('#show-location').html(selectedLocation + " <small>(municipality)</small>");
+	var subCountHtml = ""
+	$.each(subCounts, function(subLocation, sub){
+		subCountHtml += subLocation + " - " + sub + " submissions<br>";
+	})
+	$('#show-subcounts').html(subCountHtml);
+
+	$("#loading-modal").modal('hide')
+
+}
+
+</script>
