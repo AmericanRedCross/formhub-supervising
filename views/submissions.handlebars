@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.2/handlebars.min.js"></script>
 <!-- <script src="/js/users.js"></script> -->
+<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 
 
@@ -24,7 +25,7 @@
 
 <header class="row header">
 	<div class="col-md-12">
-		<h1>Submissions</h1>
+		<h1><span id="show-location">Submissions</span> <small><span id="show-count"></span></small></h1>
 	</div>
 </header>
 <nav class="navbar row">
@@ -34,25 +35,37 @@
 			<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 
 				{{#each submissions.locations}}
-				<!-- <li><a href="/submissions/{{this}}">{{this}}</a></li> -->
-				<li><a onClick="getData({{this}});">{{this}}</a></li>
-
+				    <li><a onClick="getData('{{this}}');">{{this}}</a></li>
 				{{/each}}
+
 			</ul>
 		</li>
 	</ul>
 </nav>
 
-<h1><span id="show-location"></span></h1>
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+<!--
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="heading-A">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-B" aria-expanded="true" aria-controls="collapse-B">
+          Collapsible Group Item #1
+        </a>
+      </h4>
+    </div>
+    <div id="collapse-B" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-A">
+      <div class="panel-body">
+        text
+      </div>
+    </div>
+  </div>
+-->
+</div>
 
-<p id="show-count"></p>
+<div id="myMap" style="height:450px; width:90%; z-index:1; margin-left:auto; margin-right: auto;"></div>
 
-<p id="show-subcounts"></p>
-
-<div id="myMap" style="height:350px; width:100%;"></div>
 
 <script>
-
 
 var mapUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 var mapAttribution = 'Map data &copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> | CC-BY <a href="http://redcross.org" title="Red Cross" target="_blank">Red Cross</a> 2015 | <a title="Disclaimer" onClick="showDisclaimer();">Disclaimer</a>';
@@ -60,16 +73,14 @@ var mapTiles = L.tileLayer(mapUrl, {attribution: mapAttribution});
 var map = L.map('myMap', {
     zoom: 3,
     center: [0,0],
-    scrollWheelZoom: false,
+    // scrollWheelZoom: false,
     layers: [mapTiles]
 });
-
+var locationsLayer = L.geoJson().addTo(map);
 
 var subLocationField = '{{submissions.subLocationField}}';
+var enumeratorField = '{{submissions.enumeratorField}}';
 var thisData, selectedLocation;
-var countTotal = 0;
-var subLocations = [];
-var subCounts = {};
 
 function getData(value){
 	$("#loading-modal").modal({backdrop:'static'});
@@ -85,6 +96,7 @@ function getData(value){
 
 function mapData(){
 
+  map.removeLayer(locationsLayer);
 	var featureCollection= { "type": "featureCollection", "features": [] };
 	$.each(thisData, function(index, item) {
 		if(isNaN(parseFloat(item['_geolocation'][1])) === false && isNaN(parseFloat(item['_geolocation'][0])) === false){
@@ -101,15 +113,13 @@ function mapData(){
 			featureCollection.features.push(thisGeoJsonObject);
 		}
 	});
-	console.log(featureCollection);
-
 
 	var centroidOptions = {
-		radius: 5,
+		radius: 3,
 		fillColor: "#ED1B2E",
 		fillOpacity: 1,
-		weight: 0
-
+		weight: 0.5,
+    color: "#000000"
 	};
 
 	locationsLayer = L.geoJson(featureCollection.features, {
@@ -124,34 +134,50 @@ function mapData(){
 
 	map.addLayer(locationsLayer);
 
-	countSubmissions();
-}
-
-function countSubmissions(){
-	subCounts = {}
-	subLocations = []
-	countTotal = thisData.length;
-	$.each(thisData, function(index, thisSubmission){
-		var thisLocation = thisSubmission[subLocationField];
-		if($.inArray(thisLocation, subLocations) === -1){
-			subLocations.push(thisLocation);
-			subCounts[thisLocation] = 1;
-		} else {
-			subCounts[thisLocation] += 1;
-		}
-
-	})
 	updatePage();
 }
 
+
 function updatePage(){
-	$('#show-location').html(selectedLocation + " <small>(municipality)</small>");
-  $('#show-count').html(countTotal + " total submissions for this location.");
-	var subCountHtml = ""
-	$.each(subCounts, function(subLocation, sub){
-		subCountHtml += subLocation + " - " + sub + " submissions<br>";
-	})
-	$('#show-subcounts').html(subCountHtml);
+
+  var locationNest = d3.nest()
+    .key(function(d){ return d[subLocationField]; })
+    .sortKeys(d3.ascending)
+    .rollup(function(d) { return d.length; })
+    .entries(thisData)
+
+  d3.select('#accordion').html('').selectAll('div')
+    .data(locationNest).enter().append('div')
+    .classed({'panel':true,'panel-default':true})
+    .html(function(d){
+      return '<div class="panel-heading" role="tab" id="heading-' + d.key + '">' +
+        '<h4 class="panel-title">' +
+        '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-'+ d.key + '" aria-expanded="false"  aria-controls="collapse-' + d.key + '">' +
+        d.key + " &nbsp; (" + d.values + ")" +
+        '</a>' +
+        '</h4>' +
+        '</div>' +
+        '<div id="collapse-' + d.key +'" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading' + d.key + '">' +
+        '<div class="panel-body"></div>' +
+        '</div>';
+    })
+
+  var enumeratorNest = d3.nest()
+    .key(function(d){ return d[subLocationField]; })
+    .key(function(d){ return d[enumeratorField]; })
+    .sortKeys(d3.ascending)
+    .rollup(function(d){ return d.length; })
+    .entries(thisData)
+  $.each(enumeratorNest, function(index, item){
+    d3.select("#collapse-" + item.key + " .panel-body").selectAll('div')
+    .data(item.values).enter().append('div')
+    .classed('enumerator', true)
+    .attr('data-name', function(d){ return d.key; })
+    .html(function(d){ return d.key + " &nbsp; (" + d.values + ")<br>"; })
+  })
+
+	$('#show-location').html(selectedLocation);
+  $('#show-count').html(" - " + thisData.length + " total submissions");
 
 	$("#loading-modal").modal('hide')
 
