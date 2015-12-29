@@ -16,7 +16,8 @@ settings.application = {
 settings.submissions = {
 	locationsField: "",
 	locations: [ ],
-	subLocationField: ""
+	subLocationField: "",
+	enumeratorField: ""
 }
 
 settings.formhub = {

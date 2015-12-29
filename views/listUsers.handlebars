@@ -13,6 +13,14 @@
 		<li>
 			<a href="#" id="add-toggle" data-toggle="modal" data-target="#add-user-modal"><b class="glyphicon glyphicon-plus"></b> Create User</a>
 		</li>
+		<li>
+					<a href="#" id="import-toggle" data-toggle="modal" data-target="#import-user-modal"><b class="glyphicon glyphicon-open"></b> Import Users</a>
+				</li>
+				{{#eq user.permissions "super"}}
+					<li>
+						<a href="/users/export" target="_blank" id="export-toggle"><b class="glyphicon glyphicon-save"></b> Export Users</a>
+					</li>
+				{{/eq}}
 	</ul>
 </nav>
 <div class="row">
@@ -113,6 +121,30 @@
 						<div class="modal-footer">
 							<div class="btn-group">
 								<button class="btn btn-success sharp">Create</button>
+								<button type="button" class="btn btn-warning sharp" data-dismiss="modal">Cancel</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div id="import-user-modal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Import Assets</h4>
+					</div>
+					<form action="/users/import" method="POST" id="import-user" enctype="multipart/form-data">
+						<div class="modal-body">
+							<div class="form-group{{#neq type "webmap"}} active{{/neq}}{{#if type}}{{else}} active{{/if}}" id="form-file">
+								<label for="import">Upload File</label>
+								<p><em>This form accepts CSV files with all required field names in the first row only</em></p>
+								<input type="file" class="form-control" name="import" id="import" size="50" accept=".csv">
+							</div>
+						</div>
+						<div class="modal-footer">
+							<div class="btn-group">
+								<button class="btn btn-success sharp">Import</button>
 								<button type="button" class="btn btn-warning sharp" data-dismiss="modal">Cancel</button>
 							</div>
 						</div>

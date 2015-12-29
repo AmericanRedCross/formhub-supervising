@@ -201,6 +201,24 @@ app.get('/users',function(req,res) {
 	}
 })
 
+app.post('/users/import',function(req,res) {
+	if (req.user && req.user.permissions == "super") {
+		if (req.files && req.files.import) {
+			ctrl.importCSV(req,res,"user");
+		}
+	} else {
+		res.status(401).send();
+	}
+})
+
+app.get('/users/export',function(req,res) {
+	if (req.user && req.user.permissions == "super") {
+		ctrl.exportData(req,res,"user");
+	} else {
+		res.status(401).send();
+	}
+})
+
 function apiSucceed(req,payload) {
 	var data = {
 		success: true,
