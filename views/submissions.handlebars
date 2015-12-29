@@ -43,6 +43,8 @@
 	</ul>
 </nav>
 
+<div id="no-data-alert"></div>
+
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 <!--
   <div class="panel panel-default">
@@ -89,7 +91,14 @@ function getData(value){
 	var url = window.location.href;
 	$.post(url, {location:value}, function(data){
 		thisData = JSON.parse(data);
-		mapData()
+    if(thisData.length === 0) {
+      $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
+      $("#loading-modal").modal('hide');
+    } else {
+      $('#no-data-alert').empty();
+      mapData();
+    }
+
 	});
 
 }
@@ -179,7 +188,7 @@ function updatePage(){
 	$('#show-location').html(selectedLocation);
   $('#show-count').html(" - " + thisData.length + " total submissions");
 
-	$("#loading-modal").modal('hide')
+	$("#loading-modal").modal('hide');
 
 }
 
