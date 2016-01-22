@@ -23,7 +23,7 @@ settings.formhub = {
 	user: "",
 	host: "http://formhub.redcross.org",
 	token: "",
-	formid: "",
+	formid: ["001","002"],
 
 }
 

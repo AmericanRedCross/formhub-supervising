@@ -82,29 +82,35 @@ var locationsLayer = L.geoJson().addTo(map);
 
 var subLocationField = '{{submissions.subLocationField}}';
 var enumeratorField = '{{submissions.enumeratorField}}';
-var thisData, selectedLocation;
+var formIdArray = ('{{submissions.formId}}').split(",");
+var thisData = [];
+var selectedLocation;
 
 function getData(value){
 	$("#loading-modal").modal({backdrop:'static'});
-
+  thisData = [];
 	selectedLocation = value;
 	var url = window.location.href;
-	$.post(url, {location:value}, function(data){
-		thisData = JSON.parse(data);
-    if(thisData.length === 0) {
-      $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
-      $("#loading-modal").modal('hide');
-    } else {
-      $('#no-data-alert').empty();
-      mapData();
-    }
-
-	});
+  var counter = 0;
+  $.each(formIdArray, function(i,a) {
+  	$.post(url, {location:value, formId:a}, function(data){
+  		thisData = thisData.concat(JSON.parse(data));
+      counter++;
+      if(counter === formIdArray.length){
+        if(thisData.length === 0) {
+          $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
+          $("#loading-modal").modal('hide');
+        } else {
+          $('#no-data-alert').empty();
+          mapData();
+        }
+      }
+  	});
+  });
 
 }
 
 function mapData(){
-
   map.removeLayer(locationsLayer);
 	var featureCollection= { "type": "featureCollection", "features": [] };
 	$.each(thisData, function(index, item) {

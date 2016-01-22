@@ -276,10 +276,11 @@ app.post('/submissions',function(req,res) {
 	if (req.user) {
 
 		var location = req.body.location;
+		var formId = req.body.formId;
 		var options = {
 			url: localConfig.formhub.host + "/api/v1/data/" +
 			localConfig.formhub.user + "/" +
-			localConfig.formhub.formid +
+			formId +
 			'?query={"' + localConfig.submissions.locationsField + '":"' + location + '"}',
 			headers: {
 				'Authorization': 'Token ' + localConfig.formhub.token
