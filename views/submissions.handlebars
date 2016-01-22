@@ -97,13 +97,13 @@ function getData(value){
   		thisData = thisData.concat(JSON.parse(data));
       counter++;
       if(counter === formIdArray.length){
-        if(thisData.length === 0) {
-          $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
-          $("#loading-modal").modal('hide');
-        } else {
-          $('#no-data-alert').empty();
+        // if(thisData.length === 0) {
+          // $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
+          // $("#loading-modal").modal('hide');
+        // } else {
+          // $('#no-data-alert').empty();
           mapData();
-        }
+        // }
       }
   	});
   });
@@ -112,44 +112,51 @@ function getData(value){
 
 function mapData(){
   map.removeLayer(locationsLayer);
-	var featureCollection= { "type": "featureCollection", "features": [] };
-	$.each(thisData, function(index, item) {
-		if(isNaN(parseFloat(item['_geolocation'][1])) === false && isNaN(parseFloat(item['_geolocation'][0])) === false){
-			var latlng = [parseFloat(item['_geolocation'][1]), parseFloat(item['_geolocation'][0])];
-			var thisGeoJsonObject = {
-				"type": "Feature",
-				"properties": {
-				},
-				"geometry": {
-					"type": "Point",
-					"coordinates": latlng
-				}
-			};
-			featureCollection.features.push(thisGeoJsonObject);
-		}
-	});
+  if(thisData.length === 0) {
+    $('#no-data-alert').html("<h4><i>No data retrieved for " + selectedLocation + "</i></h4>");
+    $("#loading-modal").modal('hide');
+    updatePage();
+  } else {
+     $('#no-data-alert').empty();
+	   var featureCollection= { "type": "featureCollection", "features": [] };
+      $.each(thisData, function(index, item) {
+    		if(isNaN(parseFloat(item['_geolocation'][1])) === false && isNaN(parseFloat(item['_geolocation'][0])) === false){
+    			var latlng = [parseFloat(item['_geolocation'][1]), parseFloat(item['_geolocation'][0])];
+    			var thisGeoJsonObject = {
+    				"type": "Feature",
+    				"properties": {
+    				},
+    				"geometry": {
+    					"type": "Point",
+    					"coordinates": latlng
+    				}
+    			};
+    			featureCollection.features.push(thisGeoJsonObject);
+    		}
+  	});
 
-	var centroidOptions = {
-		radius: 3,
-		fillColor: "#ED1B2E",
-		fillOpacity: 1,
-		weight: 0.5,
-    color: "#000000"
-	};
+  	var centroidOptions = {
+  		radius: 3,
+  		fillColor: "#ED1B2E",
+  		fillOpacity: 1,
+  		weight: 0.5,
+      color: "#000000"
+  	};
 
-	locationsLayer = L.geoJson(featureCollection.features, {
-		pointToLayer: function (feature, latlng) {
-			return L.circleMarker(latlng, centroidOptions);
-		}
-		// },
-		// onEachFeature: onEachFeature
-	}).addTo(map);
-	mapBounds = locationsLayer.getBounds();
-	map.fitBounds(mapBounds);
+  	locationsLayer = L.geoJson(featureCollection.features, {
+  		pointToLayer: function (feature, latlng) {
+  			return L.circleMarker(latlng, centroidOptions);
+  		}
+  		// },
+  		// onEachFeature: onEachFeature
+  	}).addTo(map);
+  	mapBounds = locationsLayer.getBounds();
+  	map.fitBounds(mapBounds);
 
-	map.addLayer(locationsLayer);
+  	map.addLayer(locationsLayer);
 
-	updatePage();
+  	updatePage();
+  }
 }
 
 
