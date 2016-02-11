@@ -146,14 +146,14 @@ app.post('/user/logout',function(req,res) {
 })
 
 app.post('/user/login',passport.authenticate('local-login', {
-    failureRedirect: '/',
+    failureRedirect: '',
     failureFlash: true
 }),function(req,res) {
 	if (req.session.redirectTo) {
 		res.redirect(req.session.redirectTo);
 		delete req.session.redirectTo;
 	} else {
-		res.redirect("/");
+		res.redirect("");
 	}
 })
 

@@ -20,9 +20,9 @@
 		<div class="container-fluid">
 			<div id="nav-toggle"><i class="fa fa-bars"></i></div>
 			<header id="site-header" class="navbar navbar-inverse" role="navigation">
-	          	<h1><a class="navbar-brand" href="/">{{opts.siteName}}</a></h1>
+	          	<h1><a class="navbar-brand" href="">{{opts.siteName}}</a></h1>
 	          	{{#if user}}
-      				<form class="navbar-form" role="form" action="/user/logout" method="POST">
+      				<form class="navbar-form" role="form" action="user/logout" method="POST">
       					<button type="submit" class="btn btn-warning sharp" title="Log Out"><b class="glyphicon glyphicon-export"></b></button>
       					<p>{{user.username}}</p>
 	    			</form>
@@ -30,11 +30,11 @@
 	          		<nav>
 		          		<ul class="nav navbar-nav">
 										<li>
-											<a href="/submissions"><b class="fa fa-list"></b> Submissions</a>
+											<a href="submissions"><b class="fa fa-list"></b> Submissions</a>
 										</li>
 		          			{{#eq user.permissions "super"}}
 			          			<li>
-			          				<a href="/users"><b class="fa fa-user"></b> Manage Users</a>
+			          				<a href="users"><b class="fa fa-user"></b> Manage Users</a>
 			          			</li>
 		          			{{/eq}}
 		          		</ul>
