@@ -126,7 +126,7 @@ app.engine('handlebars', exphbs({
 			var files = fs.readdirSync("client/media/logos");
 			for (var i=0;i<files.length;i++) {
 				var file = files[i];
-				output+="<img src='/media/logos/"+file+"' class='logo'>";
+				output+="<img src='media/logos/"+file+"' class='logo'>";
 			}
 			return output;
 		}
