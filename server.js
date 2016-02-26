@@ -141,7 +141,7 @@ app.use(express.static('client'));
 
 app.post('/user/logout',function(req,res) {
 	req.session.destroy(function() {
-		res.redirect("/");
+		res.redirect("/rita");
 	})
 })
 
@@ -153,7 +153,7 @@ app.post('/user/login',passport.authenticate('local-login', {
 		res.redirect(req.session.redirectTo);
 		delete req.session.redirectTo;
 	} else {
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
@@ -167,11 +167,11 @@ app.post('/user/:username',function(req,res) {
 				ctrl.updateUser(req,res);
 			break;
 			default:
-				res.redirect("/");
+				res.redirect("/rita");
 			break;
 		}
 	} else {
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
@@ -179,7 +179,7 @@ app.post('/user',function(req,res) {
 	if (req.user && req.user.permissions == "super") {
 		ctrl.createUser(req,res);
 	} else {
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
@@ -197,7 +197,7 @@ app.get('/users',function(req,res) {
 		})
 	} else {
 		req.session.redirectTo = "/users";
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
@@ -266,7 +266,7 @@ app.get('/submissions',function(req,res) {
 			error:req.flash("loginMessage")
 		});
 	} else {
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
@@ -296,7 +296,7 @@ app.post('/submissions',function(req,res) {
 		request(options, cb);
 
 	} else {
-		res.redirect("/");
+		res.redirect("/rita");
 	}
 })
 
