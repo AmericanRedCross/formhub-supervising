@@ -35,7 +35,7 @@ $(function() {
 		$("#add-user").validate();
 		$("#site-content").on("click",".edit-toggle",function() {
 			var username = $(this).attr("rel");
-			$("#edit-user").attr("action","/user/"+username);
+			$("#edit-user").attr("action","user/"+username);
 			$.getJSON("api/user/"+username,function(result) {
 				result.response.edit = true;
 				$("#edit-user .modal-body").html(userCtrl.templates.editUser.tpl(result.response));
@@ -45,7 +45,7 @@ $(function() {
 	})
 	userCtrl.prepTemplates();
 	$(".delete-toggle").click(function() {
-		$("#delete-user").attr("action","/user/"+$(this).attr("rel"));
+		$("#delete-user").attr("action","user/"+$(this).attr("rel"));
 	})
 
 	$("table").DataTable({
