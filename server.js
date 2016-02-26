@@ -146,7 +146,7 @@ app.post('/user/logout',function(req,res) {
 })
 
 app.post('/user/login',passport.authenticate('local-login', {
-    failureRedirect: '/',
+    failureRedirect: '/rita',
     failureFlash: true
 }),function(req,res) {
 	if (req.session.redirectTo) {
